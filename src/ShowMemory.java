@@ -16,6 +16,9 @@ public class ShowMemory extends JPanel implements ActionListener {
     private JButton createButton,deleteButton,exitButton;
     private Model block=new Model(beginNumber,1024,0,false);
     private List<Model> blockList=new ArrayList<>();
+    private JProgressBar progressBar;
+    private JLabel jLabel2;
+    private JLabel jLabel4;
     public ShowMemory(){
         initBlockList();
         initView();
@@ -28,6 +31,8 @@ public class ShowMemory extends JPanel implements ActionListener {
         }else if(e.getSource()==deleteButton){
             int name = Integer.parseInt(JOptionPane.showInputDialog("请输入要撤销的进程编号："));
             deleteProcess(name);
+        }else if(e.getSource()==exitButton){
+            System.exit(0);
         }
     }
     private void initView(){
@@ -55,18 +60,18 @@ public class ShowMemory extends JPanel implements ActionListener {
         vtemp1.add(scroll);
         //右边垂直布局
         JLabel jLabel1=new JLabel("已用的内存空间:");
-        JLabel jLabel2=new JLabel("0k");
+        jLabel2=new JLabel("0k");
         jLabel2.setFont(defaultFont);
 //        jLabel2.setOpaque(true);
 //        jLabel2.setBackground(Color.white);
         JLabel jLabel3=new JLabel("可用的内存空间:");
-        JLabel jLabel4=new JLabel("1024k");
+        jLabel4=new JLabel("1024k");
 //        jLabel4.setPreferredSize(new Dimension(50,100));
         jLabel4.setFont(defaultFont);
 //        jLabel4.setOpaque(true);
 //        jLabel4.setBackground(Color.white);
         JLabel jLabel5=new JLabel("内存总的使用情况:");
-        JProgressBar progressBar=new JProgressBar();
+        progressBar=new JProgressBar();
         progressBar.setStringPainted(true);
         vtemp2.add(jLabel1);
         vtemp2.add(Box.createVerticalStrut(30));                  //创建上下空间距离
@@ -107,6 +112,7 @@ public class ShowMemory extends JPanel implements ActionListener {
         int size=(int) (Math.random() * 200);
         Model freeModel=findBigest();
         cut(size,freeModel);
+//        progressBar.setValue(currentProgress);
     }
     private void deleteProcess(int name){
         Model model=findModelByName(name);
@@ -123,7 +129,7 @@ public class ShowMemory extends JPanel implements ActionListener {
                 return blockList.get(i);
             }
         }
-        throw null;
+        return null;
     }
     private Model findBigest(){
         int max=0;
@@ -151,7 +157,7 @@ public class ShowMemory extends JPanel implements ActionListener {
             int formerSize=model.size;
             model.useModel(size);
             blockList.add(model);
-            int newBegin=begin+size;
+            int newBegin=begin+size+1;
             int newSize=formerSize-size;
             createFreeBlock(newBegin,newSize);
             updateData();
@@ -170,6 +176,9 @@ public class ShowMemory extends JPanel implements ActionListener {
     }
     private void updateData(){
         data.clear();
+        int user=0;
+        int notUse=0;
+        int all=0;
         for(int i=0;i<blockList.size();i++){
             Vector<Object> v = new Vector<Object>();
             Model model=blockList.get(i);
@@ -179,22 +188,39 @@ public class ShowMemory extends JPanel implements ActionListener {
 //            v.add(new String(Integer.toString(model.size)));
             if(model.flag==true){
                 v.add(new String(Integer.toString(model.name)+"号进程占用"));
+                user+=model.size;
             }else {
                 v.add(new String("可用"));
+                notUse+=model.size;
             }
+            all+=model.size;
             data.add(v);
         }
         Collections.sort(data, new Comparator() {
             public int compare(Object left, Object right){
                 Vector<String> a=(Vector<String>)left;
                 Vector<String> b=(Vector<String>)right;
-                System.out.println(a.get(0)+"    "+b.get(0));
-                return a.get(0).compareTo(b.get(0));
+//                System.out.println(a.get(0)+"    "+b.get(0));
+                int a_temp=Integer.parseInt(a.get(0));
+                int b_temp=Integer.parseInt(b.get(0));
+                return a_temp-b_temp;
             }
         });
-
+        jLabel2.setText(Integer.toString(user)+"k");
+        jLabel4.setText(Integer.toString(notUse)+"k");
+        float user_temp=user;
+        float notUse_temp=notUse;
+        float currentProgress=(user_temp/(user_temp+notUse_temp))*100;
+        System.out.println(Float.toString(currentProgress));
+        progressBar.setValue((int)currentProgress);
         model.addTableItem();                          //自适应行数
         table.repaint();
+    }
+    private void updaterogressBar(){
+        int user=0;
+        int notUse=0;
+        int all=0;
+
     }
     class MyTableModel extends AbstractTableModel  //模型类
     {
