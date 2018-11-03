@@ -47,7 +47,7 @@ public class ShowMemory extends JPanel implements ActionListener {
         Box vtemp2 = Box.createVerticalBox();
         //第一列水平布局
         //左边垂直布局
-        JLabel jLabel0=new JLabel("内存的使用情况列表:");
+        JLabel jLabel0=new JLabel("内存的使用情况列表:(最坏适配算法)");
 //        jLabel0.setFont(defaultFont);
         table = new JTable(model);                     //把模型对象作为参数构造表格对象，这样就可以用表格显示出数据
         DefaultTableCellRenderer   r   =   new DefaultTableCellRenderer();
@@ -132,15 +132,15 @@ public class ShowMemory extends JPanel implements ActionListener {
         return null;
     }
     private Model findBigest(){
-        int max=0;
-        int index=0;
+        int max=-1;
+        int index=-1;
         for(int i=0;i<blockList.size();i++){
             if(blockList.get(i).flag==false&&blockList.get(i).size>max){
                 max=blockList.get(i).size;
                 index=i;
             }
         }
-        if(max!=0){
+        if(max!=-1){
 //            System.out.println("不空");
             return blockList.get(index);
         }else {
